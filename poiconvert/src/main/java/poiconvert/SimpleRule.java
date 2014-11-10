@@ -16,4 +16,6 @@ public class SimpleRule{
 	double sequenceStartNumber = -1;
 	// 序列号间隔
 	double sequenceStep = -1;
+	// 序列号映射列，此列变换才会引起序列号增长，-1表示不需要，其他正整数表示同表中的列
+	int sequenceIndex = -1;
 }

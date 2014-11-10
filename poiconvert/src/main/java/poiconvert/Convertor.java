@@ -32,7 +32,8 @@ public class Convertor {
 	private List<SimpleRule> sequences;
 
 	public Convertor(Map<String, String> config,
-			Map<Integer, List<SimpleRule>> rules, List<SimpleRule> defaults,List<SimpleRule> sequences) {
+			Map<Integer, List<SimpleRule>> rules, List<SimpleRule> defaults,
+			List<SimpleRule> sequences) {
 		this.config = config;
 		this.rules = rules;
 		this.defaults = defaults;
@@ -156,17 +157,22 @@ public class Convertor {
 						rule.defaultValue = StringUtils.substring(parts[0], 1,
 								parts[0].length() - 1).trim();
 						defaults.add(rule);
-					} else if(StringUtils.startsWith(parts[0], "#") && StringUtils.endsWith(parts[0], "#")){
+					} else if (StringUtils.startsWith(parts[0], "#")
+							&& StringUtils.endsWith(parts[0], "#")) {
 						// 序列号情况
-						String sequence = StringUtils.substring(parts[0], 1,parts[0].length()-1).trim();
+						String sequence = StringUtils.substring(parts[0], 1,
+								parts[0].length() - 1).trim();
 						String sparts[] = sequence.split("\\|");
 						double startNumber = Double.parseDouble(sparts[0]);
 						double step = Double.parseDouble(sparts[1]);
 						rule.sequenceStartNumber = startNumber;
 						rule.sequenceStep = step;
+						if (sparts.length == 3) {
+							int index = Integer.parseInt(sparts[2]);
+							rule.sequenceIndex = index;
+						}
 						sequences.add(rule);
-					}
-					else {
+					} else {
 						// 列转换
 						String[] sIndexs = parts[0].split("\\.");
 						rule.sourceSheetIndex = Integer.parseInt(sIndexs[0]);
@@ -191,7 +197,7 @@ public class Convertor {
 			}
 		}
 
-		return new Convertor(configMap, rules, defaults,sequences);
+		return new Convertor(configMap, rules, defaults, sequences);
 	}
 
 	private boolean convertSingle(File file, File targetFile,
@@ -215,7 +221,7 @@ public class Convertor {
 							.entrySet()) {
 						int sSheet = entry.getKey();
 						HSSFSheet inSheet = book.getSheetAt(sSheet);
-						int rowCount = inSheet.getLastRowNum();
+						int rowCount = inSheet.getLastRowNum() + 1;
 						for (int i = srow, j = trow; i < rowCount; i++, j++) {
 							HSSFRow row = inSheet.getRow(i);
 							List<SimpleRule> ruleList = entry.getValue();
@@ -245,7 +251,7 @@ public class Convertor {
 						int targetSheetIndex = simpleRule.targetSheetIndex;
 						int targetColumnIndex = simpleRule.targetColumnIndex;
 						HSSFSheet tSheet = target.getSheetAt(targetSheetIndex);
-						int rowCount = tSheet.getLastRowNum();
+						int rowCount = tSheet.getLastRowNum() + 1;
 						for (int i = targetSkipRows; i < rowCount; i++) {
 							HSSFRow row = tSheet.getRow(i);
 							HSSFCell cell = row.getCell(targetColumnIndex);
@@ -254,23 +260,25 @@ public class Convertor {
 										.createCell((short) targetColumnIndex);
 							}
 							String defaultValue = simpleRule.defaultValue;
-							try{
+							try {
 								double d = Double.parseDouble(defaultValue);
 								cell.setCellValue(d);
-							}catch(Exception e){
+							} catch (Exception e) {
 								cell.setCellValue(new HSSFRichTextString(
 										defaultValue));
 							}
 						}
 					}
 					// 处理序列号
-					for(SimpleRule seq : sequences){
+					for (SimpleRule seq : sequences) {
 						int targetSheetIndex = seq.targetSheetIndex;
 						int targetColumnIndex = seq.targetColumnIndex;
 						HSSFSheet tSheet = target.getSheetAt(targetSheetIndex);
-						int rowCount = tSheet.getLastRowNum();
+						int rowCount = tSheet.getLastRowNum() + 1;
 						double seqNum = seq.sequenceStartNumber;
 						double step = seq.sequenceStep;
+						int seqIndex = seq.sequenceIndex;
+						HashMap<String, Double> indexMap = new HashMap<>();
 						for (int i = targetSkipRows; i < rowCount; i++) {
 							HSSFRow row = tSheet.getRow(i);
 							HSSFCell cell = row.getCell(targetColumnIndex);
@@ -278,8 +286,35 @@ public class Convertor {
 								cell = row
 										.createCell((short) targetColumnIndex);
 							}
-							cell.setCellValue(seqNum);
-							seqNum += step;
+							if(seqIndex == -1){
+								// 不需要映射列的情况
+								cell.setCellValue(seqNum);
+								seqNum += step;
+							}else{
+								HSSFCell indexCell = row.getCell(seqIndex);
+								if(indexCell == null){
+									cell.setCellValue(seqNum);
+									seqNum += step;
+								}else{
+									String index = indexCell.getRichStringCellValue().getString();
+									Double indexSeq = indexMap.get(index);
+									if(indexSeq == null){
+										// 没有值，证明要变化了
+										if(seqNum == seq.sequenceStartNumber){
+											// 第一次需要特殊处理
+											cell.setCellValue(seqNum);
+											indexMap.put(index, seqNum);
+											seqNum += step;
+										}else{
+											cell.setCellValue(seqNum);
+											seqNum += step;
+											indexMap.put(index, seqNum);
+										}
+									}else{
+										cell.setCellValue(indexSeq);
+									}
+								}
+							}
 						}
 					}
 					try (FileOutputStream output = new FileOutputStream(
