@@ -152,10 +152,22 @@ public class Convertor {
 					String[] parts = line.split("=");
 					SimpleRule rule = new SimpleRule();
 					// 默认值情况
-					if (StringUtils.startsWith(parts[0], "[")
+					if ((StringUtils.startsWith(parts[0], "[")
+							|| StringUtils.startsWith(parts[0], "s[") || StringUtils
+								.startsWith(parts[0], "d["))
 							&& StringUtils.endsWith(parts[0], "]")) {
-						rule.defaultValue = StringUtils.substring(parts[0], 1,
-								parts[0].length() - 1).trim();
+						if (StringUtils.startsWith(parts[0], "[")) {
+							rule.defaultValue = StringUtils.substring(parts[0],
+									1, parts[0].length() - 1).trim();
+						} else if (StringUtils.startsWith(parts[0], "s[")) {
+							rule.defaultValue = StringUtils.substring(parts[0],
+									2, parts[0].length() - 1).trim();
+						} else if (StringUtils.startsWith(parts[0], "d[")) {
+							rule.defaultValue = StringUtils.substring(parts[0],
+									2, parts[0].length() - 1).trim();
+							rule.defaultValueType = "d";
+						}
+
 						defaults.add(rule);
 					} else if (StringUtils.startsWith(parts[0], "#")
 							&& StringUtils.endsWith(parts[0], "#")) {
@@ -261,8 +273,14 @@ public class Convertor {
 							}
 							String defaultValue = simpleRule.defaultValue;
 							try {
-								double d = Double.parseDouble(defaultValue);
-								cell.setCellValue(d);
+								if (StringUtils.equals("d",
+										simpleRule.defaultValueType)) {
+									double d = Double.parseDouble(defaultValue);
+									cell.setCellValue(d);
+								} else {
+									cell.setCellValue(new HSSFRichTextString(
+											defaultValue));
+								}
 							} catch (Exception e) {
 								cell.setCellValue(new HSSFRichTextString(
 										defaultValue));
@@ -286,31 +304,33 @@ public class Convertor {
 								cell = row
 										.createCell((short) targetColumnIndex);
 							}
-							if(seqIndex == -1){
+							if (seqIndex == -1) {
 								// 不需要映射列的情况
 								cell.setCellValue(seqNum);
 								seqNum += step;
-							}else{
+							} else {
 								HSSFCell indexCell = row.getCell(seqIndex);
-								if(indexCell == null){
+								if (indexCell == null) {
 									cell.setCellValue(seqNum);
 									seqNum += step;
-								}else{
-									String index = indexCell.getRichStringCellValue().getString();
+								} else {
+									String index = indexCell
+											.getRichStringCellValue()
+											.getString();
 									Double indexSeq = indexMap.get(index);
-									if(indexSeq == null){
+									if (indexSeq == null) {
 										// 没有值，证明要变化了
-										if(seqNum == seq.sequenceStartNumber){
+										if (seqNum == seq.sequenceStartNumber) {
 											// 第一次需要特殊处理
 											cell.setCellValue(seqNum);
 											indexMap.put(index, seqNum);
 											seqNum += step;
-										}else{
+										} else {
 											cell.setCellValue(seqNum);
 											seqNum += step;
 											indexMap.put(index, seqNum);
 										}
-									}else{
+									} else {
 										cell.setCellValue(indexSeq);
 									}
 								}

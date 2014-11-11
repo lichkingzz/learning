@@ -12,6 +12,8 @@ public class SimpleRule{
 	int targetColumnIndex = 0;
 	// 默认值
 	String defaultValue = null;
+	// 默认值类型
+	String defaultValueType = "s";
 	// 序列号开始符号
 	double sequenceStartNumber = -1;
 	// 序列号间隔
