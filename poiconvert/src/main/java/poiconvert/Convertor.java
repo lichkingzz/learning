@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,20 +154,31 @@ public class Convertor {
 					SimpleRule rule = new SimpleRule();
 					// 默认值情况
 					if ((StringUtils.startsWith(parts[0], "[")
-							|| StringUtils.startsWith(parts[0], "s[") || StringUtils
-								.startsWith(parts[0], "d["))
+							|| StringUtils.startsWith(parts[0], "s[")
+							|| StringUtils.startsWith(parts[0], "d[") || StringUtils
+								.startsWith(parts[0], "t["))
 							&& StringUtils.endsWith(parts[0], "]")) {
 						if (StringUtils.startsWith(parts[0], "[")) {
 							rule.defaultValue = StringUtils.substring(parts[0],
 									1, parts[0].length() - 1).trim();
-						} else if (StringUtils.startsWith(parts[0], "s[")) {
+						} else {
 							rule.defaultValue = StringUtils.substring(parts[0],
 									2, parts[0].length() - 1).trim();
-						} else if (StringUtils.startsWith(parts[0], "d[")) {
-							rule.defaultValue = StringUtils.substring(parts[0],
-									2, parts[0].length() - 1).trim();
-							rule.defaultValueType = "d";
+							rule.defaultValueType = StringUtils.substring(
+									parts[0], 0, 1);
 						}
+						// if (StringUtils.startsWith(parts[0], "s[")) {
+						// rule.defaultValue = StringUtils.substring(parts[0],
+						// 2, parts[0].length() - 1).trim();
+						// } else if (StringUtils.startsWith(parts[0], "d[")) {
+						// rule.defaultValue = StringUtils.substring(parts[0],
+						// 2, parts[0].length() - 1).trim();
+						// rule.defaultValueType = "d";
+						// } else if(StringUtils.startsWith(parts[0], "t[")){
+						// rule.defaultValue = StringUtils.substring(parts[0],
+						// 2, parts[0].length() - 1).trim();
+						// rule.defaultValueType = "t";
+						// }
 
 						defaults.add(rule);
 					} else if (StringUtils.startsWith(parts[0], "#")
@@ -277,6 +289,44 @@ public class Convertor {
 										simpleRule.defaultValueType)) {
 									double d = Double.parseDouble(defaultValue);
 									cell.setCellValue(d);
+								} else if (StringUtils.equals("t",
+										simpleRule.defaultValueType)) {
+									// 当天日期
+									if (StringUtils
+											.equals(defaultValue, "date")) {
+										Calendar calendar = Calendar
+												.getInstance();
+										calendar.set(Calendar.HOUR_OF_DAY, 0);
+										calendar.set(Calendar.MINUTE, 0);
+										calendar.set(Calendar.SECOND, 0);
+										calendar.set(Calendar.MILLISECOND, 0);
+										cell.setCellValue(calendar);
+									}else if(StringUtils
+											.equals(defaultValue, "datetime")){
+										Calendar calendar = Calendar
+												.getInstance();
+										cell.setCellValue(calendar);
+									}else{
+										Calendar calendar = Calendar
+												.getInstance();
+										String parts[] = defaultValue.split(" ");
+										String dateParts[] = parts[0].split("/");
+										calendar.set(Calendar.YEAR, Integer.parseInt(dateParts[0]));
+										calendar.set(Calendar.MONTH, Integer.parseInt(dateParts[1]) - 1);
+										calendar.set(Calendar.DATE, Integer.parseInt(dateParts[2]));
+										if(parts.length == 1){
+											calendar.set(Calendar.HOUR_OF_DAY, 0);
+											calendar.set(Calendar.MINUTE, 0);
+											calendar.set(Calendar.SECOND, 0);
+										}else{
+											String timeParts[] = parts[1].split(":");
+											calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
+											calendar.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
+											calendar.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
+										}
+										calendar.set(Calendar.MILLISECOND, 0);
+										cell.setCellValue(calendar);
+									}
 								} else {
 									cell.setCellValue(new HSSFRichTextString(
 											defaultValue));
@@ -367,4 +417,5 @@ public class Convertor {
 		}
 
 	}
+
 }
