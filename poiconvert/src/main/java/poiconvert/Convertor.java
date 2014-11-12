@@ -319,17 +319,9 @@ public class Convertor {
 											.getString();
 									Double indexSeq = indexMap.get(index);
 									if (indexSeq == null) {
-										// 没有值，证明要变化了
-										if (seqNum == seq.sequenceStartNumber) {
-											// 第一次需要特殊处理
-											cell.setCellValue(seqNum);
-											indexMap.put(index, seqNum);
-											seqNum += step;
-										} else {
-											cell.setCellValue(seqNum);
-											seqNum += step;
-											indexMap.put(index, seqNum);
-										}
+										cell.setCellValue(seqNum);
+										indexMap.put(index, seqNum);
+										seqNum += step;
 									} else {
 										cell.setCellValue(indexSeq);
 									}
