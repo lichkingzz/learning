@@ -278,6 +278,9 @@ public class Convertor {
 						int rowCount = tSheet.getLastRowNum() + 1;
 						for (int i = targetSkipRows; i < rowCount; i++) {
 							HSSFRow row = tSheet.getRow(i);
+							if(row == null){
+								System.out.println(simpleRule + " " + i + " " + targetColumnIndex);
+							}
 							HSSFCell cell = row.getCell(targetColumnIndex);
 							if (cell == null) {
 								cell = row
@@ -418,4 +421,8 @@ public class Convertor {
 
 	}
 
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		HSSFWorkbook book = new HSSFWorkbook(new FileInputStream(new File("testSource/PLM导出格式-xx导物料.xls")));
+		System.out.println(book.getSheetAt(0).getLastRowNum());
+	}
 }

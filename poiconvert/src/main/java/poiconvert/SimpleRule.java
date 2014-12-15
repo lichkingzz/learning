@@ -1,5 +1,7 @@
 package poiconvert;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 
 public class SimpleRule{
 	// 输入表格
@@ -20,4 +22,9 @@ public class SimpleRule{
 	double sequenceStep = -1;
 	// 序列号映射列，此列变换才会引起序列号增长，-1表示不需要，其他正整数表示同表中的列
 	int sequenceIndex = -1;
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 }
