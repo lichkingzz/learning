@@ -1,1 +1,1 @@
-mvn archetype:create -DgroupId=poiconvert -DartifactId=poiconvert -DarchetypeArtifactId=maven-archetype-quickstart 
+mvn archetype:create -DgroupId=my.httpclient -DartifactId=myhttpclient -DarchetypeArtifactId=maven-archetype-quickstart 
