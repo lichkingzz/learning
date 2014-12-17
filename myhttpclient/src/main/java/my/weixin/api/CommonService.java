@@ -8,7 +8,7 @@ import my.weixin.api.pojo.WeixinArticle;
 import my.weixin.api.result.WeixinUploadResult;
 
 /**
- * Î¢ĞÅ»ù´¡Ö§³Ö½Ó¿Ú {@link http
+ * å¾®ä¿¡åŸºç¡€æ”¯æŒæ¥å£ {@link http
  * ://mp.weixin.qq.com/wiki/11/0e4b294685f817b95cbed85ba5e82b8f.html}
  * 
  * @author xzz
@@ -16,49 +16,42 @@ import my.weixin.api.result.WeixinUploadResult;
 public interface CommonService {
 
 	/**
-	 * »ñÈ¡½Ó¿Ú·ÃÎÊToken£¬Ã¿´Î·ÃÎÊµÄÊ±ºò¶¼ĞèÒªÊäÈëÌí¼Ótoken
+	 * è·å–å¾®ä¿¡æœåŠ¡å™¨çš„IPåˆ—è¡¨
 	 * 
-	 * @return token×Ö¶Î
+	 * @return IPåˆ—è¡¨
 	 */
-	String getAccessToken();
+	String[] getWeixinIpList() throws WeixinException;
 
 	/**
-	 * »ñÈ¡Î¢ĞÅ·şÎñÆ÷µÄIPÁĞ±í
-	 * 
-	 * @return IPÁĞ±í
-	 */
-	String[] getWeixinIpList();
-
-	/**
-	 * ÉÏ´«ÎÄ¼şµ½Î¢ĞÅ·şÎñÆ÷
+	 * ä¸Šä¼ æ–‡ä»¶åˆ°å¾®ä¿¡æœåŠ¡å™¨
 	 * 
 	 * @param type
-	 *            ÉÏ´«ÎÄ¼şÀàĞÍ
+	 *            ä¸Šä¼ æ–‡ä»¶ç±»å‹
 	 * @param uploadFile
-	 *            ĞèÒªÉÏ´«µÄÎÄ¼ş
-	 * @return ÉÏ´«½á¹û
+	 *            éœ€è¦ä¸Šä¼ çš„æ–‡ä»¶
+	 * @return ä¸Šä¼ ç»“æœ
 	 */
 	WeixinUploadResult upload(WeixinMediaType type, File uploadFile)
 			throws WeixinException;
 
 	/**
-	 * ÉÏ´«ÎÄÕÂÀàĞÍµÄÏûÏ¢
+	 * ä¸Šä¼ æ–‡ç« ç±»å‹çš„æ¶ˆæ¯
 	 * 
 	 * @param ariticles
-	 *            ÎÄÕÂÁĞ±í
-	 * @return ÉÏ´«½á¹û
+	 *            æ–‡ç« åˆ—è¡¨
+	 * @return ä¸Šä¼ ç»“æœ
 	 */
 	WeixinUploadResult uploadArticles(WeixinArticle[] ariticles)
 			throws WeixinException;
 
 	/**
-	 * ´ÓÎ¢ĞÅ·şÎñÆ÷ÏÂÔØÎÄ¼ş
+	 * ä»å¾®ä¿¡æœåŠ¡å™¨ä¸‹è½½æ–‡ä»¶
 	 * 
 	 * @param mediaID
-	 *            ÎÄ¼şID
+	 *            æ–‡ä»¶ID
 	 * @param saveFile
-	 *            ÏÂÔØÎÄ¼şµÄ±£´æÎ»ÖÃ
-	 * @return ÏÂÔØ½á¹û
+	 *            ä¸‹è½½æ–‡ä»¶çš„ä¿å­˜ä½ç½®
+	 * @return ä¸‹è½½ç»“æœ
 	 */
 	void download(String mediaID, File saveFile) throws WeixinException;
 

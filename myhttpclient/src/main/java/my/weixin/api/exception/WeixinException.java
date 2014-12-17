@@ -12,7 +12,12 @@ public class WeixinException extends Exception {
 	 */
 	private static final long serialVersionUID = -8769689069270609539L;
 	
+	public WeixinException(){
+		
+	}
+	
 	public WeixinException(String errorcode,String errmsg){
+		super("errcode:" + errorcode + ",errmsg:" + errmsg);
 		this.errcode = errorcode;
 		this.errmsg = errmsg;
 	}
@@ -36,4 +41,5 @@ public class WeixinException extends Exception {
 	public void setErrmsg(String errmsg) {
 		this.errmsg = errmsg;
 	}
+	
 }
