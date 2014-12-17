@@ -108,13 +108,15 @@ public class WeixinBaseService {
 				if (req instanceof HttpGet) {
 					HttpGet get = ((HttpGet) req);
 					String base = get.getURI().toString();
-					if(base.indexOf("?") != -1){
-						base += "&access_token=" + URLEncoder.encode(getAccessToken(),"utf-8");
-					}else{
-						base += "?access_token=" + URLEncoder.encode(getAccessToken(),"utf-8");
+					if (base.indexOf("?") != -1) {
+						base += "&access_token="
+								+ URLEncoder.encode(getAccessToken(), "utf-8");
+					} else {
+						base += "?access_token="
+								+ URLEncoder.encode(getAccessToken(), "utf-8");
 					}
 					URI uri = new URI(base);
-					if(logger.isDebugEnabled()){
+					if (logger.isDebugEnabled()) {
 						logger.debug("query uri:" + uri);
 					}
 					get.setURI(uri);
@@ -125,6 +127,8 @@ public class WeixinBaseService {
 			Map<String, Object> result = ConvertUtils.readJson(in, Map.class);
 			checkHasError(result);
 			return result;
+		} catch (WeixinException e) {
+			throw e;
 		} catch (Exception e) {
 			logger.error("read result to map fail:", e);
 			throw new WeixinException("SYSTEM_ERROR", "SYSTEM_ERROR");
@@ -161,9 +165,14 @@ public class WeixinBaseService {
 
 	protected InputStream executeAsStream(HttpUriRequest req)
 			throws IllegalStateException, IOException, InterruptedException,
-			ExecutionException {
+			ExecutionException, WeixinException {
 		Future<HttpResponse> future = getHttpClient().execute(req, null);
 		HttpResponse response = future.get();
+		int status = response.getStatusLine().getStatusCode();
+		if (status < 200 || status >= 300) {
+			throw new WeixinException("SYSTEM_ERROR", "weixin http status:"
+					+ status);
+		}
 		return response.getEntity().getContent();
 	}
 
